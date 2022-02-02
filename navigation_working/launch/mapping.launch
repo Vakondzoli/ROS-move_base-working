@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--after running this launch file to draw the map it still needs to be saved after the whole place mapped-->
+
+<launch>
+<include file="$(find navigation_working)/launch/ass_world.launch"/>
+  <!--The GMAPPING package provides laser-based SLAM (Simultaneous Localization and Mapping). 
+  using slam_gmapping, you can create a 2-D occupancy grid map from laser and pose data collected by a mobile robot
+  The slam_gmapping node takes in sensor_msgs/LaserScan messages and builds a map (nav_msgs/OccupancyGrid)
+
+  Listening to trasform frame and laser scan data and publishes the map-->
+  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">  
+      <param name="scan"        value="scan"/>
+      <param name="odom_frame"  value="odom"/>
+      <param name="base_frame"  value="base_link"/>
+  </node>
+
+</launch>

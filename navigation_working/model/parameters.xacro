@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+<!--parameters are kept here for the robot urdf-->
+
+<!--chassis parameters (existing parts at home for later to build after the simulation)-->
+<xacro:property name="x_chassis"        value="0.26" />    <!--length in meters-->
+<xacro:property name="y_chassis"        value="0.1" />     <!--width in meters-->
+<xacro:property name="z_chassis"        value="0.05" />    <!--height in meters-->
+<xacro:property name="mass_chassis"     value="10" />   <!--mass KG-->
+
+<!--the wheel paramters-->
+<xacro:property name="radius_wheel"     value="0.034" />    <!--radius of wheel at home used (68mm diameter in meter is 0.068m)-->
+<xacro:property name="height_wheel"     value="0.03" />    <!--height of wheel at home used (30mm)-->
+<xacro:property name="mass_wheel"       value="3.0" />    <!--3kg (not the weight of actual wheels)-->
+<xacro:property name="torque_wheel"     value="10" />    <!--Torque: 10Nm-->
+<xacro:property name="distance_wheel"   value="0.13" />    <!--wheel distance-->
+
+</robot>

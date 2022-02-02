@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!--locatoin given for parameters-->
+<xacro:include filename="$(find simulation_pkg)/model/parameters.xacro"/>
+
+  <xacro:arg name="laser_visualise" default="true"/>   <!--to see the rays in gazebo-->
+  <xacro:arg name="imu_visual"   default="false"/>
+
+<!--diff drive control from gazebo-->
+<gazebo>
+    <!--
+    plugin is a part of code that is compiled as a shared library and inserted into the simulation.
+    the plugin has direct access to the gazeboo functionality through the standard cpp classes.
+    This is why we can control most aspects of gazeboo
+    -->
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>10</updateRate> <!--publish and recieve 4Hz also defined in launch file-->
+        <leftJoint>left_wheel_hinge</leftJoint>
+        <rightJoint>right_wheel_hinge</rightJoint>
+
+        <publishWheelJointState>true</publishWheelJointState>
+        <publishWheelTF>false</publishWheelTF>        
+        <publishTf>1</publishTf>         
+        <wheelTorque>5</wheelTorque>
+        <wheelAcceleration>0</wheelAcceleration>
+        <publishOdomTF>true</publishOdomTF>
+
+        <wheelSeparation>${distance_wheel*2}</wheelSeparation>
+        <wheelDiameter>${radius_wheel*2}</wheelDiameter>
+        <torque>20</torque>
+        <commandTopic>cmd_vel</commandTopic>    <!--geometry_msgs/Twist message (float64 2xvector3) vector3 linear(xyz) vector 3 angular(rpy)-->
+        <odometryTopic>odom</odometryTopic>     <!--Odometry is the use of data from motion sensors to estimate change in position over time. -->
+        <odometryFrame>odom</odometryFrame>    <!--The robot is using odometry to estimate its position and orientation relative to a starting location given in xyz position-->
+        <robotBaseFrame>base_link</robotBaseFrame>  <!--odom to baselink is the position of the robot in the inertial odometric frame reported by odom sensor-->
+        <legacyMode>false</legacyMode> <!--legacy mode is a state in which a computer system, component, or software application behaves in a way that is different from its standard operation in order to support older software-->
+    </plugin>
+</gazebo>
+
+<!--
+<gazebo reference="imu_link">
+    <sensor type="imu" name="imu">
+        <always_on>true</always_on>
+        <visualize>$(arg imu_visual)</visualize>
+    </sensor>
+    <material>Gazebo/FlatBlack</material>
+</gazebo>
+
+<gazebo>
+    <plugin name="imu_plugin" filename="libgazebo_ros_imu.so">
+      <alwaysOn>true</alwaysOn>
+      <bodyName>imu_link</bodyName>
+      <frameName>imu_link</frameName>
+      <topicName>imu</topicName>
+      <serviceName>imu_service</serviceName>
+      <gaussianNoise>0.0</gaussianNoise>
+      <updateRate>0</updateRate>
+      <imu>
+        <noise>
+          <type>gaussian</type>
+          <rate>
+            <mean>0.0</mean>
+            <stddev>2e-4</stddev>
+            <bias_mean>0.0000075</bias_mean>
+            <bias_stddev>0.0000008</bias_stddev>
+          </rate>
+          <accel>
+            <mean>0.0</mean>
+            <stddev>1.7e-2</stddev>
+            <bias_mean>0.1</bias_mean>
+            <bias_stddev>0.001</bias_stddev>
+          </accel>
+        </noise>
+      </imu>
+    </plugin>
+</gazebo>-->
+
+
+  <gazebo reference="laser_link">
+    <material>Gazebo/FlatBlack</material>
+    <sensor type="ray" name="lds_lfcd_sensor">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>$(arg laser_visualise)</visualize>    <!--to see the rays in the simulation-->
+      <update_rate>10</update_rate>                  <!--10Hz-->
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>      <!--360 samples per rotation-->
+            <resolution>1</resolution>  <!--horizontal resolution of 1 degree-->
+            <min_angle>0.0</min_angle>  
+            <max_angle>6.28319</max_angle>  <!--0-2pi is full rotations-->
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.15</min>          <!--from 155cm to 5m range to scan-->
+          <max>5</max>
+          <resolution>0.01</resolution> <!--10mm resolution-->
+        </range>
+        <noise>
+          <type>gaussian</type> <!--Gaussian noise,is statistical noise having a probability density function (PDF) equal to that of the normal distribution, which is also known as the Gaussian distribution. In other words, the values that the noise can take on are Gaussian-distributed.-->
+          <mean>0.0</mean>      <!--the mean describes what is being measured, -->
+          <stddev>0.01</stddev> <!--while the standard deviation represents noise and other interference-->
+        </noise>
+      </ray>
+      <plugin name="gazebo_ros_lds_lfcd_controller" filename="libgazebo_ros_laser.so">      
+        <topicName>scan</topicName>
+        <frameName>laser_link</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+<!-- CAMERA PLUGIN -->
+<gazebo reference="camera_link">
+  <sensor type="camera" name="camera1">
+    <update_rate>50.0</update_rate>
+    <camera name="head">
+      <horizontal_fov>1.3962634</horizontal_fov>
+      <image>
+        <width>800</width>
+        <height>800</height>
+        <format>R8G8B8</format>
+      </image>
+      <clip>
+        <near>0.02</near>
+        <far>300</far>
+      </clip>
+      <noise>
+        <type>gaussian</type>
+        <!-- Noise is sampled independently per pixel on each frame.
+             That pixel's noise value is added to each of its color
+             channels, which at that point lie in the range [0,1]. -->
+        <mean>0.0</mean>
+        <stddev>0.007</stddev>
+      </noise>
+    </camera>
+    <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>0.0</updateRate>
+      <cameraName>camera1</cameraName>
+      <imageTopicName>image_raw</imageTopicName>
+      <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+      <frameName>camera_link</frameName>
+      <hackBaseline>0.07</hackBaseline>
+      <distortionK1>0.0</distortionK1>
+      <distortionK2>0.0</distortionK2>
+      <distortionK3>0.0</distortionK3>
+      <distortionT1>0.0</distortionT1>
+      <distortionT2>0.0</distortionT2>
+    </plugin>
+  </sensor>
+</gazebo>
+</robot>
+
+

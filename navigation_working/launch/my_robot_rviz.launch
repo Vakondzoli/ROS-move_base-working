@@ -1,0 +1,39 @@
+<launch>
+  <arg name="gui" default="true" /> <!--need the gui to control moving joints with the slide bar-->
+  <arg name="rvizconfig" default="$(find navigation_working)/rviz_config/display_robot.rviz" /> <!--location of presaved rviz config file that visualizes the robot-->
+
+ <!--This command builds the urdf from the xacro--> 
+  <param 
+  name="robot_description"  
+  command="xacro --inorder '$(find navigation_working)/model/my_robot.xacro'"   />
+
+<!--open rviz with the robot model using saved config-->
+  <node 
+  name="rviz" 
+  pkg="rviz" 
+  type="rviz" 
+  args="-d $(arg rvizconfig)" 
+  required="true"   />
+
+<!--publish tf for the RobotModel in rviz-->
+  <node 
+  name="robot_state_publisher" 
+  pkg="robot_state_publisher" 
+  type="robot_state_publisher"   />
+
+  <node 
+  if="$(arg gui)" 
+      name="joint_state_publisher" 
+      pkg="joint_state_publisher_gui" 
+      type="joint_state_publisher_gui" />
+  <node 
+  unless="$(arg gui)" 
+      name="joint_state_publisher" 
+      pkg="joint_state_publisher" 
+      type="joint_state_publisher" />
+
+</launch>
+
+
+
+

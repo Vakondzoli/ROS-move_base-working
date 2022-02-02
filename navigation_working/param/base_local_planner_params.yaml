@@ -1,0 +1,12 @@
+# Using a map, the planner creates a kinematic trajectory for the robot to get from a start to a goal location.
+# Responsible for computing velocity commands to send to the mobile base of the robot given a high-level plan.
+TrajectoryPlannerROS:
+# Robot Configuration Parameters. Velocity and acceleration limitss
+  max_vel_x: 0.45
+  min_vel_x: 0.1
+  max_vel_theta:  1.0
+  acc_lim_x: 3.2
+  acc_lim_y: 2.5
+  acc_lim_theta: 2.5
+  holonomic_robot: false
+

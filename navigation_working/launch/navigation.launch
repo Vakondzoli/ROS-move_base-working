@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>	
+<include file="$(find navigation_working)/launch/localization.launch"/> 
+  
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find navigation_working)/param/costmap_common_params.yaml"      command="load" ns="global_costmap" />
+    <rosparam file="$(find navigation_working)/param/costmap_common_params.yaml"      command="load" ns="local_costmap" />
+    <rosparam file="$(find navigation_working)/param/local_costmap_params.yaml"       command="load" />
+    <rosparam file="$(find navigation_working)/param/global_costmap_params.yaml"      command="load" />    
+    <rosparam file="$(find navigation_working)/param/base_local_planner_params.yaml"  command="load" />    
+
+  </node>
+  
+
+</launch>
+
+
+
+
+<!--rosrun teleop_twist_keyboard teleop_twist_keyboard.py-->
+<!--rosrun map_server map_saver -f myMapName-->

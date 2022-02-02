@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--after running this launch file to draw the map it still needs to be saved after the whole place mapped-->
+<launch>	
+<!-- arguments are defined here-->
+	  <arg name="world"         default="empty" />
+    <arg name="paused"        default="false" />  <!--when true simulation will start paused-->
+    <arg name="use_sim_time"  default="true" />
+    <arg name="gui"           default="true" />	<!--when need graphic user interface to see the robot in the ass world-->
+    <arg name="headless"      default="false" />	
+	  <arg name="debug"         default="false" />
+	  <arg name="rviz"          default="true" /> <!--if this is true rviz will start too to see the map-->	
+	  <arg name="model"         default="$(find navigation_working)/model/my_robot.xacro"/>
+    <arg name="rvizconfig"    default="$(find navigation_working)/rviz_config/urdf.rviz" />
+
+   <!-- load assessment world in gazebo-->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch"> 
+    <arg name="world_name"    value="$(find navigation_working)/world/assessment_with_boxes.world"/> 
+    <arg name="paused"        value="$(arg paused)"/>
+    <arg name="use_sim_time"  value="$(arg use_sim_time)"/>  
+    <arg name="gui"           value="$(arg gui)" />
+    <arg name="headless"      value="$(arg headless)"/>
+    <arg name="debug"         value="$(arg debug)" />
+  </include>  
+
+  <!--Nicks python code to generate random numbers where to spawn the cubes-->
+  <node name="move" pkg="simulation_pkg" type="move_semi_random" />
+  
+  <!--This command builds the urdf from the xacro-->
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+
+  <!-- after urdf built, spaawn robot (-param robot_description)-->
+  <node name="diff_drive_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
+        args="-urdf -param robot_description -y 0 -x 0 -model diff_drive" />
+
+  <!--Publish the TF (transferframes)-->
+  <node pkg="robot_state_publisher" type="robot_state_publisher"  name="robot_state_publisher"/>  
+
+    <!--open rviz using saved config from simulation_pkg package-->
+  <group if="$(arg rviz)">
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+  </group>
+
+</launch>
